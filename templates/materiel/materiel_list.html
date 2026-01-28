@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste du matériel - Gestion de Matériel{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">
+        <i class="fas fa-list me-2"></i>Liste du matériel
+    </h1>
+    {% if is_staff %}
+    <a href="{% url 'materiel_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Ajouter du matériel
+    </a>
+    {% endif %}
+</div>
+
+<!-- Filtres et recherche -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label for="search" class="form-label">Rechercher</label>
+                <input type="text" class="form-control" id="search" name="search" 
+                       value="{{ request.GET.search }}" placeholder="Matricule, marque, service...">
+            </div>
+            <div class="col-md-3">
+                <label for="etat" class="form-label">État</label>
+                <select class="form-select" id="etat" name="etat">
+                    <option value="">Tous les états</option>
+                    <option value="neuf" {% if request.GET.etat == 'neuf' %}selected{% endif %}>Neuf</option>
+                    <option value="bon" {% if request.GET.etat == 'bon' %}selected{% endif %}>Bon état</option>
+                    <option value="usage" {% if request.GET.etat == 'usage' %}selected{% endif %}>Usé</option>
+                    <option value="panne" {% if request.GET.etat == 'panne' %}selected{% endif %}>En panne</option>
+                    <option value="reforme" {% if request.GET.etat == 'reforme' %}selected{% endif %}>Réformé</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="type_materiel" class="form-label">Type</label>
+                <select class="form-select" id="type_materiel" name="type_materiel">
+                    <option value="">Tous les types</option>
+                    <option value="informatique" {% if request.GET.type_materiel == 'informatique' %}selected{% endif %}>Informatique</option>
+                    <option value="mobilier" {% if request.GET.type_materiel == 'mobilier' %}selected{% endif %}>Mobilier</option>
+                    <option value="vehicule" {% if request.GET.type_materiel == 'vehicule' %}selected{% endif %}>Véhicule</option>
+                    <option value="outillage" {% if request.GET.type_materiel == 'outillage' %}selected{% endif %}>Outillage</option>
+                    <option value="telephonie" {% if request.GET.type_materiel == 'telephonie' %}selected{% endif %}>Téléphonie</option>
+                    <option value="autre" {% if request.GET.type_materiel == 'autre' %}selected{% endif %}>Autre</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search me-1"></i>Filtrer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tableau du matériel -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-boxes me-2"></i>
+            {% if materiels|length %}
+                {{ materiels|length }} matériel{{ materiels|length|pluralize }}
+            {% else %}
+                Aucun matériel trouvé
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if materiels %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Marque</th>
+                            <th>Type</th>
+                            <th>État</th>
+                            <th>Stock</th>
+                            <th>Service</th>
+                            <th>Utilisateur</th>
+                            <th>Date réception</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for materiel in materiels %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'materiel_detail' materiel.pk %}" class="text-decoration-none fw-bold">
+                                    {{ materiel.matricule }}
+                                </a>
+                            </td>
+                            <td>{{ materiel.marque }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ materiel.get_type_materiel_display }}</span>
+                            </td>
+                            <td>
+                                {% if materiel.etat == 'neuf' %}
+                                    <span class="badge bg-success">{{ materiel.get_etat_display }}</span>
+                                {% elif materiel.etat == 'bon' %}
+                                    <span class="badge bg-primary">{{ materiel.get_etat_display }}</span>
+                                {% elif materiel.etat == 'usage' %}
+                                    <span class="badge bg-warning text-dark">{{ materiel.get_etat_display }}</span>
+                                {% elif materiel.etat == 'panne' %}
+                                    <span class="badge bg-danger">{{ materiel.get_etat_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ materiel.get_etat_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if materiel.stock > 0 %}
+                                    <span class="text-success fw-bold">{{ materiel.stock }}</span>
+                                {% else %}
+                                    <span class="text-danger">0</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ materiel.service_affecte|default:"-" }}</td>
+                            <td>{{ materiel.utilisateur_affecte|default:"-" }}</td>
+                            <td>{{ materiel.date_reception|date:"d/m/Y"|default:"-" }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'materiel_detail' materiel.pk %}" 
+                                       class="btn btn-outline-primary" title="Voir les détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if is_staff %}
+                                    <a href="{% url 'materiel_update' materiel.pk %}" 
+                                       class="btn btn-outline-warning" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'materiel_delete' materiel.pk %}" 
+                                       class="btn btn-outline-danger" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <nav aria-label="Pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        <li class="page-item active">
+                            <span class="page-link">
+                                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                        
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Aucun matériel trouvé</h5>
+                <p class="text-muted">
+                    Essayez de modifier vos critères de recherche ou de filtre.
+                </p>
+                <a href="{% url 'materiel_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-redo me-2"></i>Réinitialiser les filtres
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
