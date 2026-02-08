@@ -7,11 +7,11 @@ class MaterielAdmin(admin.ModelAdmin):
     list_display = [
         'matricule', 'marque', 'type_materiel', 'etat', 
         'stock', 'service_affecte', 'utilisateur_affecte', 
-        'date_reception', 'created_at'
+        'date_sortie', 'created_at'
     ]
     list_filter = [
         'type_materiel', 'type_affectation', 'etat', 
-        'service_affecte', 'date_reception'
+        'service_affecte', 'date_sortie'
     ]
     search_fields = [
         'matricule', 'marque', 'fournisseur', 
@@ -22,13 +22,13 @@ class MaterielAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Informations générales', {
-            'fields': ('date', 'matricule', 'marque', 'type_materiel', 'type_affectation')
+            'fields': ('date_entree', 'matricule', 'marque', 'type_materiel', 'type_affectation')
         }),
         ('État et emplacement', {
             'fields': ('emplacement', 'etat', 'stock')
         }),
-        ('Fournisseur et réception', {
-            'fields': ('fournisseur', 'date_reception')
+        ('Fournisseur et sortie', {
+            'fields': ('fournisseur', 'date_sortie')
         }),
         ('Affectation', {
             'fields': ('service_affecte', 'utilisateur_affecte')

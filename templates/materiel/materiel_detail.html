@@ -140,15 +140,15 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label class="form-label text-muted">Date d'enregistrement</label>
+                    <label class="form-label text-muted">Date d'entrée</label>
                     <p class="form-control-plaintext">
-                        <i class="fas fa-calendar-plus me-1"></i>{{ materiel.date|date:"d/m/Y"|default:"-" }}
+                        <i class="fas fa-calendar-plus me-1"></i>{{ materiel.date_entree|date:"d/m/Y"|default:"-" }}
                     </p>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label text-muted">Date de réception</label>
+                    <label class="form-label text-muted">Date de sortie</label>
                     <p class="form-control-plaintext">
-                        <i class="fas fa-truck me-1"></i>{{ materiel.date_reception|date:"d/m/Y"|default:"-" }}
+                        <i class="fas fa-truck me-1"></i>{{ materiel.date_sortie|date:"d/m/Y"|default:"-" }}
                     </p>
                 </div>
                 <div class="mb-3">

@@ -38,13 +38,13 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="{{ form.date.id_for_label }}" class="form-label">
-                                Date d'enregistrement <span class="text-danger">*</span>
+                            <label for="{{ form.date_entree.id_for_label }}" class="form-label">
+                                Date d'entrée
                             </label>
-                            {{ form.date }}
-                            {% if form.date.errors %}
+                            {{ form.date_entree }}
+                            {% if form.date_entree.errors %}
                                 <div class="text-danger small mt-1">
-                                    {% for error in form.date.errors %}
+                                    {% for error in form.date_entree.errors %}
                                         <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
                                     {% endfor %}
                                 </div>
@@ -81,7 +81,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.type_materiel.id_for_label }}" class="form-label">
-                                Type de matériel <span class="text-danger">*</span>
+                                Type de matériel
                             </label>
                             {{ form.type_materiel }}
                             {% if form.type_materiel.errors %}
@@ -97,7 +97,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.type_affectation.id_for_label }}" class="form-label">
-                                Type d'affectation <span class="text-danger">*</span>
+                                Type d'affectation
                             </label>
                             {{ form.type_affectation }}
                             {% if form.type_affectation.errors %}
@@ -110,7 +110,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.etat.id_for_label }}" class="form-label">
-                                État <span class="text-danger">*</span>
+                                État
                             </label>
                             {{ form.etat }}
                             {% if form.etat.errors %}
@@ -126,7 +126,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.stock.id_for_label }}" class="form-label">
-                                Quantité en stock <span class="text-danger">*</span>
+                                Quantité en stock
                             </label>
                             {{ form.stock }}
                             {% if form.stock.errors %}
@@ -139,7 +139,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.emplacement.id_for_label }}" class="form-label">
-                                Emplacement <span class="text-danger">*</span>
+                                Emplacement
                             </label>
                             {{ form.emplacement }}
                             {% if form.emplacement.errors %}
@@ -155,7 +155,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.fournisseur.id_for_label }}" class="form-label">
-                                Fournisseur <span class="text-danger">*</span>
+                                Fournisseur
                             </label>
                             {{ form.fournisseur }}
                             {% if form.fournisseur.errors %}
@@ -167,13 +167,13 @@
                             {% endif %}
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="{{ form.date_reception.id_for_label }}" class="form-label">
-                                Date de réception <span class="text-danger">*</span>
+                            <label for="{{ form.date_sortie.id_for_label }}" class="form-label">
+                                Date de sortie
                             </label>
-                            {{ form.date_reception }}
-                            {% if form.date_reception.errors %}
+                            {{ form.date_sortie }}
+                            {% if form.date_sortie.errors %}
                                 <div class="text-danger small mt-1">
-                                    {% for error in form.date_reception.errors %}
+                                    {% for error in form.date_sortie.errors %}
                                         <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
                                     {% endfor %}
                                 </div>
@@ -184,7 +184,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.service_affecte.id_for_label }}" class="form-label">
-                                Service affecté <span class="text-danger">*</span>
+                                Service affecté
                             </label>
                             {{ form.service_affecte }}
                             {% if form.service_affecte.errors %}
@@ -197,7 +197,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.utilisateur_affecte.id_for_label }}" class="form-label">
-                                Utilisateur affecté <span class="text-danger">*</span>
+                                Utilisateur affecté
                             </label>
                             {{ form.utilisateur_affecte }}
                             {% if form.utilisateur_affecte.errors %}
@@ -298,6 +298,95 @@
                             {% endif %}
                             {% if form.date_prochaine_visite.help_text %}
                                 <div class="form-text text-muted">{{ form.date_prochaine_visite.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.date_mise_circulation.id_for_label }}" class="form-label">
+                                {{ form.date_mise_circulation.label }}
+                            </label>
+                            {{ form.date_mise_circulation }}
+                            {% if form.date_mise_circulation.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.date_mise_circulation.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.date_mise_circulation.help_text %}
+                                <div class="form-text text-muted">{{ form.date_mise_circulation.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.type_carburant.id_for_label }}" class="form-label">
+                                {{ form.type_carburant.label }}
+                            </label>
+                            {{ form.type_carburant }}
+                            {% if form.type_carburant.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.type_carburant.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.type_carburant.help_text %}
+                                <div class="form-text text-muted">{{ form.type_carburant.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.statut_vehicule.id_for_label }}" class="form-label">
+                                {{ form.statut_vehicule.label }}
+                            </label>
+                            {{ form.statut_vehicule }}
+                            {% if form.statut_vehicule.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.statut_vehicule.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.statut_vehicule.help_text %}
+                                <div class="form-text text-muted">{{ form.statut_vehicule.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.prix.id_for_label }}" class="form-label">
+                                {{ form.prix.label }}
+                            </label>
+                            {{ form.prix }}
+                            {% if form.prix.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.prix.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.prix.help_text %}
+                                <div class="form-text text-muted">{{ form.prix.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="{{ form.divers.id_for_label }}" class="form-label">
+                                {{ form.divers.label }}
+                            </label>
+                            {{ form.divers }}
+                            {% if form.divers.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.divers.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.divers.help_text %}
+                                <div class="form-text text-muted">{{ form.divers.help_text }}</div>
                             {% endif %}
                         </div>
                     </div>
