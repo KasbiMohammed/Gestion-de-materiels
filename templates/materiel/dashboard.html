@@ -12,9 +12,7 @@
         <a href="{% url 'materiel_create' %}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Ajouter du matériel
         </a>
-        <a href="{% url 'visite_create' %}" class="btn btn-success">
-            <i class="fas fa-wrench me-2"></i>Ajouter une visite
-        </a>
+       
         {% endif %}
         <a href="{% url 'suivi_visites' %}" class="btn btn-info">
             <i class="fas fa-history me-2"></i>Suivi des visites
@@ -152,9 +150,7 @@
                                     </a>
                                     {% endif %}
                                     {% if materiel.type_materiel == 'vehicule' and is_staff %}
-                                    <a href="{% url 'visite_create' %}?materiel={{ materiel.pk }}" class="btn btn-outline-success" title="Ajouter une visite">
-                                        <i class="fas fa-wrench"></i>
-                                    </a>
+                                    
                                     {% endif %}
                                 </div>
                             </td>
@@ -262,9 +258,7 @@
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     {% if is_staff %}
-                                    <a href="{% url 'visite_create' %}?materiel={{ visite.materiel.pk }}" class="btn btn-outline-success" title="Ajouter une autre visite">
-                                        <i class="fas fa-plus"></i>
-                                    </a>
+                                    
                                     {% endif %}
                                 </div>
                             </td>
@@ -285,7 +279,7 @@
                     {% endif %}
                 </p>
                 {% if is_staff %}
-                <a href="{% url 'visite_create' %}" class="btn btn-success btn-sm">
+                <a href="{% url 'suivi_visites' %}" class="btn btn-success btn-sm">
                     <i class="fas fa-plus me-2"></i>Ajouter une visite
                 </a>
                 {% endif %}

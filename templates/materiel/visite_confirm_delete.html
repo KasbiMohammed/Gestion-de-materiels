@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Supprimer la visite - {{ visite.materiel.matricule }}{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="luxury-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-0">
+                <i class="fas fa-trash luxury-icon me-3"></i>
+                Supprimer la visite
+            </h1>
+            <div class="shimmer-effect"></div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="luxury-card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Confirmation de suppression
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attention :</strong> Vous êtes sur le point de supprimer définitivement cette visite.
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6><i class="fas fa-info-circle me-2"></i>Détails de la visite à supprimer :</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Véhicule :</strong> {{ visite.materiel.matricule }} - {{ visite.materiel.marque }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Date :</strong> {{ visite.date_visite }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Type :</strong> {{ visite.get_type_visite_display }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Responsable :</strong> {{ visite.responsable|default:"Non spécifié" }}
+                            </div>
+                            {% if visite.cout %}
+                            <div class="col-md-6">
+                                <strong>Coût :</strong> {{ visite.cout }} €
+                            </div>
+                            {% endif %}
+                            {% if visite.kilometrage %}
+                            <div class="col-md-6">
+                                <strong>Kilométrage :</strong> {{ visite.kilometrage }} km
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if visite.observations %}
+                    <div class="mb-4">
+                        <h6><i class="fas fa-sticky-note me-2"></i>Observations :</h6>
+                        <p class="text-muted">{{ visite.observations }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'suivi_visites' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-2"></i>Confirmer la suppression
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

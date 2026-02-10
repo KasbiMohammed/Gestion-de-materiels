@@ -21,10 +21,16 @@
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
                     <i class="fas fa-{% if object %}edit{% else %}plus{% endif %} me-2"></i>
-                    Informations du matériel
+                    {% if object %}Modifier{% else %}Ajouter{% endif %} du matériel avec visite
                 </h5>
             </div>
             <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Important :</strong> Ce formulaire unifié ajoute le matériel et crée automatiquement une visite liée. 
+                    Les champs de maintenance seront transférés vers la visite.
+                </div>
+                
                 <form method="post" novalidate>
                     {% csrf_token %}
                     
@@ -37,98 +43,538 @@
                     {% endif %}
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.date_entree.id_for_label }}" class="form-label">
-                                Date d'entrée
-                            </label>
-                            {{ form.date_entree }}
-                            {% if form.date_entree.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.date_entree.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
+                        <!-- SECTION 1: MATÉRIEL -->
+                        <div class="col-12 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-box me-2"></i>
+                                        Informations du matériel
+                                    </h6>
                                 </div>
-                            {% endif %}
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.date_entree.id_for_label }}" class="form-label">
+                                                Date d'entrée
+                                            </label>
+                                            {{ form.date_entree }}
+                                            {% if form.date_entree.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.date_entree.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.matricule.id_for_label }}" class="form-label">
+                                                Matricule <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.matricule }}
+                                            {% if form.matricule.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.matricule.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.marque.id_for_label }}" class="form-label">
+                                                Marque <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.marque }}
+                                            {% if form.marque.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.marque.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.type_materiel.id_for_label }}" class="form-label">
+                                                Type de matériel <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.type_materiel }}
+                                            {% if form.type_materiel.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.type_materiel.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.etat.id_for_label }}" class="form-label">
+                                                État <span class="text-danger">*</span>
+                                            </label>
+                                            {{ form.etat }}
+                                            {% if form.etat.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.etat.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.type_affectation.id_for_label }}" class="form-label">
+                                                Type d'affectation
+                                            </label>
+                                            {{ form.type_affectation }}
+                                            {% if form.type_affectation.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.type_affectation.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.emplacement.id_for_label }}" class="form-label">
+                                                Emplacement
+                                            </label>
+                                            {{ form.emplacement }}
+                                            {% if form.emplacement.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.emplacement.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.fournisseur.id_for_label }}" class="form-label">
+                                                Fournisseur
+                                            </label>
+                                            {{ form.fournisseur }}
+                                            {% if form.fournisseur.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.fournisseur.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.date_sortie.id_for_label }}" class="form-label">
+                                                Date de sortie
+                                            </label>
+                                            {{ form.date_sortie }}
+                                            {% if form.date_sortie.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.date_sortie.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.service_affecte.id_for_label }}" class="form-label">
+                                                Service affecté
+                                            </label>
+                                            {{ form.service_affecte }}
+                                            {% if form.service_affecte.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.service_affecte.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.utilisateur_affecte.id_for_label }}" class="form-label">
+                                                Utilisateur affecté
+                                            </label>
+                                            {{ form.utilisateur_affecte }}
+                                            {% if form.utilisateur_affecte.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.utilisateur_affecte.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.stock.id_for_label }}" class="form-label">
+                                                Stock
+                                            </label>
+                                            {{ form.stock }}
+                                            {% if form.stock.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.stock.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="col-12 mb-3">
+                                            <label for="{{ form.observation.id_for_label }}" class="form-label">
+                                                Observations générales
+                                            </label>
+                                            {{ form.observation }}
+                                            {% if form.observation.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.observation.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.matricule.id_for_label }}" class="form-label">
-                                Matricule <span class="text-danger">*</span>
-                            </label>
-                            {{ form.matricule }}
-                            {% if form.matricule.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.matricule.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
+                        
+                        <!-- SECTION 2: VÉHICULE (OPTIONNEL) -->
+                        <div class="col-12 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-warning text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-car me-2"></i>
+                                        Informations véhicule (optionnel)
+                                    </h6>
                                 </div>
-                            {% endif %}
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Note :</strong> Cette section s'affiche uniquement si le type de matériel est "véhicule".
+                                    </div>
+                                    
+                                    <div id="vehicule-fields" style="display: none;">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.type_vehicule.id_for_label }}" class="form-label">
+                                                    Type de véhicule
+                                                </label>
+                                                {{ form.type_vehicule }}
+                                                {% if form.type_vehicule.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in form.type_vehicule.errors %}
+                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <small class="text-muted">{{ form.type_vehicule.help_text }}</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.numero_vehicule.id_for_label }}" class="form-label">
+                                                    Numéro de châssis
+                                                </label>
+                                                {{ form.numero_vehicule }}
+                                                {% if form.numero_vehicule.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in form.numero_vehicule.errors %}
+                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <small class="text-muted">{{ form.numero_vehicule.help_text }}</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.date_prochaine_visite.id_for_label }}" class="form-label">
+                                                    Date de prochaine visite
+                                                </label>
+                                                {{ form.date_prochaine_visite }}
+                                                {% if form.date_prochaine_visite.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in form.date_prochaine_visite.errors %}
+                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <small class="text-muted">{{ form.date_prochaine_visite.help_text }}</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.date_mise_circulation.id_for_label }}" class="form-label">
+                                                    Date de mise en circulation
+                                                </label>
+                                                {{ form.date_mise_circulation }}
+                                                {% if form.date_mise_circulation.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in form.date_mise_circulation.errors %}
+                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <small class="text-muted">{{ form.date_mise_circulation.help_text }}</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.type_carburant.id_for_label }}" class="form-label">
+                                                    Type de carburant
+                                                </label>
+                                                {{ form.type_carburant }}
+                                                {% if form.type_carburant.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in form.type_carburant.errors %}
+                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <small class="text-muted">{{ form.type_carburant.help_text }}</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.statut_vehicule.id_for_label }}" class="form-label">
+                                                    Statut du véhicule
+                                                </label>
+                                                {{ form.statut_vehicule }}
+                                                {% if form.statut_vehicule.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in form.statut_vehicule.errors %}
+                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <small class="text-muted">{{ form.statut_vehicule.help_text }}</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="{{ form.kilometrage.id_for_label }}" class="form-label">
+                                                    Kilométrage
+                                                </label>
+                                                {{ form.kilometrage }}
+                                                {% if form.kilometrage.errors %}
+                                                    <div class="text-danger small mt-1">
+                                                        {% for error in form.kilometrage.errors %}
+                                                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                <small class="text-muted">{{ form.kilometrage.help_text }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- SECTION 3: MAINTENANCE / VISITE -->
+                        <div class="col-12 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-wrench me-2"></i>
+                                        Maintenance et visite
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Important :</strong> Ces informations seront utilisées pour créer automatiquement une visite liée au matériel.
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.type_visite.id_for_label }}" class="form-label">
+                                                Type de visite initial
+                                            </label>
+                                            {{ form.type_visite }}
+                                            {% if form.type_visite.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.type_visite.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="text-muted">{{ form.type_visite.help_text }}</small>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.defaut_panne.id_for_label }}" class="form-label">
+                                                Défaut/Panne
+                                            </label>
+                                            {{ form.defaut_panne }}
+                                            {% if form.defaut_panne.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.defaut_panne.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="text-muted">{{ form.defaut_panne.help_text }}</small>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.reference_piece.id_for_label }}" class="form-label">
+                                                Référence pièce
+                                            </label>
+                                            {{ form.reference_piece }}
+                                            {% if form.reference_piece.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.reference_piece.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="text-muted">{{ form.reference_piece.help_text }}</small>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.reparation.id_for_label }}" class="form-label">
+                                                Réparation
+                                            </label>
+                                            {{ form.reparation }}
+                                            {% if form.reparation.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.reparation.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="text-muted">{{ form.reparation.help_text }}</small>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ form.prix.id_for_label }}" class="form-label">
+                                                Prix (€)
+                                            </label>
+                                            {{ form.prix }}
+                                            {% if form.prix.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.prix.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="text-muted">{{ form.prix.help_text }}</small>
+                                        </div>
+                                        
+                                        <div class="col-12 mb-3">
+                                            <label for="{{ form.divers.id_for_label }}" class="form-label">
+                                                Divers
+                                            </label>
+                                            {{ form.divers }}
+                                            {% if form.divers.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.divers.errors %}
+                                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="text-muted">{{ form.divers.help_text }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.marque.id_for_label }}" class="form-label">
-                                Marque <span class="text-danger">*</span>
-                            </label>
-                            {{ form.marque }}
-                            {% if form.marque.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.marque.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.type_materiel.id_for_label }}" class="form-label">
-                                Type de matériel
-                            </label>
-                            {{ form.type_materiel }}
-                            {% if form.type_materiel.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.type_materiel.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'materiel_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Mettre à jour{% else %}Ajouter{% endif %} le matériel avec visite
+                        </button>
                     </div>
+                </form>
+            </div>
+        </div>
+    </div>
+        
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Aide et instructions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="fw-bold">Instructions générales</h6>
+                    <p class="text-muted small">
+                        Tous les champs marqués d'une astérisque (<span class="text-danger">*</span>) sont obligatoires.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Matricule</h6>
+                    <p class="text-muted small">
+                        Le matricule doit être unique dans le système. Utilisez un format cohérent pour tous les équipements.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Type de visite</h6>
+                    <p class="text-muted small">
+                        Sélectionnez le type de visite qui sera créé automatiquement pour les véhicules.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Stock</h6>
+                    <p class="text-muted small">
+                        Indiquez la quantité disponible en stock. Utilisez 0 pour indiquer une rupture de stock.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Observations</h6>
+                    <p class="text-muted small">
+                        Utilisez ce champ pour ajouter des notes supplémentaires sur l'état du matériel ou des instructions particulières.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.type_affectation.id_for_label }}" class="form-label">
-                                Type d'affectation
-                            </label>
-                            {{ form.type_affectation }}
-                            {% if form.type_affectation.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.type_affectation.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.etat.id_for_label }}" class="form-label">
-                                État
-                            </label>
-                            {{ form.etat }}
-                            {% if form.etat.errors %}
-                                <div class="text-danger small mt-1">
-                                    {% for error in form.etat.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.stock.id_for_label }}" class="form-label">
-                                Quantité en stock
-                            </label>
-                            {{ form.stock }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-set today's date for new equipment
+    {% if not object %}
+    var dateField = document.getElementById('{{ form.date_entree.id_for_label }}');
+    if (!dateField.value) {
+        var today = new Date().toISOString().split('T')[0];
+        dateField.value = today;
+    }
+    {% endif %}
+    
+    // Show/hide vehicle-specific fields based on material type
+    var typeMaterielField = document.getElementById('{{ form.type_materiel.id_for_label }}');
+    var vehiculeFields = document.getElementById('vehicule-fields');
+    
+    if (typeMaterielField && vehiculeFields) {
+        function toggleVehiculeFields() {
+            if (typeMaterielField.value === 'vehicule') {
+                vehiculeFields.style.display = 'block';
+            } else {
+                vehiculeFields.style.display = 'none';
+            }
+        }
+        
+        // Initial check
+        toggleVehiculeFields();
+        
+        // Listen for changes
+        typeMaterielField.addEventListener('change', toggleVehiculeFields);
+    }
+});
+</script>
+{% endblock %}
                             {% if form.stock.errors %}
                                 <div class="text-danger small mt-1">
                                     {% for error in form.stock.errors %}
@@ -495,16 +941,9 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <h6 class="fw-bold">Champs obligatoires</h6>
+                    <h6 class="fw-bold">Type de visite</h6>
                     <p class="text-muted small">
-                        Tous les champs marqués d'une astérisque (<span class="text-danger">*</span>) sont obligatoires.
-                    </p>
-                </div>
-                
-                <div class="mb-3">
-                    <h6 class="fw-bold">Matricule</h6>
-                    <p class="text-muted small">
-                        Le matricule doit être unique dans le système. Utilisez un format cohérent pour tous les équipements.
+                        Sélectionnez le type de visite qui sera créé automatiquement pour les véhicules.
                     </p>
                 </div>
                 
@@ -538,4 +977,4 @@ document.addEventListener('DOMContentLoaded', function() {
     {% endif %}
 });
 </script>
-{% endblock %}
+

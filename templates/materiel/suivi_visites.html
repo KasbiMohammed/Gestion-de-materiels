@@ -26,6 +26,21 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
+                        <h4 class="card-title">{{ vehicules|length }}</h4>
+                        <p class="card-text">Total véhicules</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-car fa-2x luxury-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="luxury-card success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
                         <h4 class="card-title">{{ total_visites }}</h4>
                         <p class="card-text">Total des visites</p>
                     </div>
@@ -37,7 +52,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="luxury-card success">
+        <div class="luxury-card info">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -52,27 +67,12 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="luxury-card info">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h4 class="card-title">{{ vehicules_list|length }}</h4>
-                        <p class="card-text">Véhicules suivis</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-car fa-2x luxury-icon"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
         <div class="luxury-card warning">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">{{ alertes_visites|length }}</h4>
-                        <p class="card-text">Visites imminentes</p>
+                        <p class="card-text">Visites bientôt dues</p>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-exclamation-triangle fa-2x luxury-icon"></i>
@@ -82,6 +82,88 @@
         </div>
     </div>
 </div>
+
+<!-- Formulaires d'ajout -->
+{% if is_staff %}
+<div class="row mb-4">
+    <!-- Formulaire d'ajout de visite -->
+    <div class="col-12">
+        <div class="luxury-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-wrench me-2"></i>Ajouter une visite
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="materiel_id" class="form-label">Matériel *</label>
+                            <select name="materiel_id" id="materiel_id" class="form-select" required>
+                                <option value="">Sélectionner un matériel</option>
+                                {% for materiel in vehicules %}
+                                <option value="{{ materiel.id }}">{{ materiel.matricule }} - {{ materiel.marque }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="date_visite" class="form-label">Date de visite *</label>
+                            <input type="date" name="date_visite" id="date_visite" class="form-control" required>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="type_visite" class="form-label">Type de visite *</label>
+                            <select name="type_visite" id="type_visite" class="form-select" required>
+                                <option value="">Sélectionner un type</option>
+                                {% for type, label in type_visite_choices %}
+                                <option value="{{ type }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="responsable" class="form-label">Responsable</label>
+                            <input type="text" name="responsable" id="responsable" class="form-control" 
+                                   placeholder="Nom du responsable">
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="kilometrage" class="form-label">Kilométrage</label>
+                            <input type="number" name="kilometrage" id="kilometrage" class="form-control" 
+                                   placeholder="Kilométrage actuel" step="0.01">
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="cout" class="form-label">Coût (€)</label>
+                            <input type="number" name="cout" id="cout" class="form-control" 
+                                   placeholder="Coût de la visite" step="0.01" min="0">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="prochaine_visite" class="form-label">Prochaine visite</label>
+                            <input type="date" name="prochaine_visite" id="prochaine_visite" class="form-control">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="observations" class="form-label">Observations</label>
+                            <textarea name="observations" id="observations" class="form-control" rows="2" 
+                                      placeholder="Détails de la visite..."></textarea>
+                        </div>
+                        
+                        <div class="col-12 d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Ajouter la visite
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Alertes visites imminentes -->
 {% if alertes_visites %}
@@ -106,6 +188,10 @@
     </div>
     <div class="card-body">
         <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="matricule" class="form-label">Matricule</label>
+                <input type="text" name="matricule" id="matricule" class="form-control" placeholder="Rechercher par matricule" value="{{ request.GET.matricule }}">
+            </div>
             <div class="col-md-3">
                 <label for="vehicule" class="form-label">Véhicule</label>
                 <select name="vehicule" id="vehicule" class="form-select">
@@ -182,6 +268,23 @@
                             {% include 'materiel/badges/type_visite_badge.html' with type=visite.type_visite %}
                         </td>
                         <td>{{ visite.responsable|default:"Non spécifié" }}</td>
+                        <td>
+                            {% if is_staff %}
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'visite_detail' visite.id %}" class="btn btn-outline-primary btn-sm" title="Voir les détails">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'visite_update' visite.id %}" class="btn btn-outline-warning btn-sm" title="Modifier la visite">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'visite_delete' visite.id %}" class="btn btn-outline-danger btn-sm" title="Supprimer la visite" onclick="return confirm('Supprimer la visite du {{ visite.materiel.matricule }} - {{ visite.date_visite }} ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -199,17 +302,27 @@
     <div class="card-body">
         {% for vehicule in vehicules %}
         {% with visites=vehicule.visites.all %}
-        {% if visites %}
         <div class="mb-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="mb-0">
                     <i class="fas fa-car luxury-icon me-2"></i>
                     <strong>{{ vehicule.matricule }}</strong> - {{ vehicule.marque }}
                     <small class="text-muted">({{ vehicule.type_vehicule|default:"Type non spécifié" }})</small>
+                    {% if is_staff %}
+                    <div class="btn-group btn-group-sm ms-2" role="group">
+                        <a href="{% url 'materiel_update' vehicule.id %}" class="btn btn-outline-warning btn-sm" title="Modifier le véhicule">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'materiel_delete' vehicule.id %}" class="btn btn-outline-danger btn-sm" title="Supprimer le véhicule" onclick="return confirm('Supprimer le véhicule {{ vehicule.matricule }} ?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                    {% endif %}
                 </h6>
-                <span class="badge badge-luxury bg-secondary">{{ visites|length }} visite(s)</span>
+                <span class="badge badge-luxury {% if visites %}bg-primary{% else %}bg-secondary{% endif %}">{{ visites|length }} visite(s)</span>
             </div>
             
+            {% if visites %}
             <div class="accordion" id="accordion{{ vehicule.id }}">
                 {% for visite in visites %}
                 <div class="accordion-item mb-2">
@@ -230,6 +343,19 @@
                                     {% endif %}
                                     {% if visite.responsable %}
                                     <small class="text-muted ms-2">{{ visite.responsable }}</small>
+                                    {% endif %}
+                                    {% if is_staff %}
+                                    <div class="btn-group btn-group-sm ms-2" role="group">
+                                        <a href="{% url 'visite_detail' visite.id %}" class="btn btn-outline-primary btn-sm" title="Voir les détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'visite_update' visite.id %}" class="btn btn-outline-warning btn-sm" title="Modifier la visite">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'visite_delete' visite.id %}" class="btn btn-outline-danger btn-sm" title="Supprimer la visite" onclick="return confirm('Supprimer la visite du {{ visite.materiel.matricule }} - {{ visite.date_visite }} ?')">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -294,6 +420,9 @@
         <div class="alert alert-luxury mb-4">
             <i class="fas fa-info-circle luxury-icon me-2"></i>
             Aucune visite enregistrée pour <strong>{{ vehicule.matricule }}</strong>
+            {% if is_staff %}
+            
+            {% endif %}
         </div>
         {% endif %}
         {% endwith %}

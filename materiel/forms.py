@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import Materiel, Visite, ControleVisite
 
 
@@ -24,7 +25,7 @@ class MaterielForm(forms.ModelForm):
             'stock': forms.NumberInput(attrs={'class': 'form-control'}),
             'fournisseur': forms.TextInput(attrs={'class': 'form-control'}),
             'date_sortie': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'observation': forms.Select(attrs={'class': 'form-control'}),
+            'observation': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Observations générales...'}),
             'service_affecte': forms.TextInput(attrs={'class': 'form-control'}),
             'utilisateur_affecte': forms.TextInput(attrs={'class': 'form-control'}),
             'kilometrage': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
@@ -40,6 +41,15 @@ class MaterielForm(forms.ModelForm):
             'divers': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Remarques ou informations libres...'}),
             'prix': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
         }
+    
+    # Ajout du champ type de visite
+    type_visite = forms.ChoiceField(
+        label='Type de visite initial',
+        choices=Visite.TYPE_VISITE_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        help_text='Type de visite qui sera créé automatiquement pour les véhicules'
+    )
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -199,3 +209,214 @@ class ControleVisiteForm(forms.ModelForm):
         self.fields['effectue'].label = "Contrôle effectué"
         self.fields['details'].label = "Détails du contrôle"
         self.fields['pieces_changees'].label = "Pièces changées"
+
+
+class MaterielVisiteForm(forms.Form):
+    """Formulaire unifié pour gérer matériel et visites"""
+    
+    # Étape 1: Identification du matériel
+    matricule = forms.CharField(
+        label="Matricule du matériel",
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Entrez le matricule...',
+            'id': 'matricule-input',
+            'autocomplete': 'off'
+        })
+    )
+    
+    # Étape 2: Informations matériel (si nouveau)
+    marque = forms.CharField(
+        label="Marque",
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Marque du matériel'
+        })
+    )
+    
+    type_materiel = forms.ChoiceField(
+        label="Type de matériel",
+        choices=Materiel.TYPE_MATERIEL_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    type_affectation = forms.ChoiceField(
+        label="Type d'affectation",
+        choices=Materiel.TYPE_AFFECTATION_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    service_affecte = forms.CharField(
+        label="Service affecté",
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Service concerné'
+        })
+    )
+    
+    utilisateur_affecte = forms.CharField(
+        label="Utilisateur affecté",
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Utilisateur concerné'
+        })
+    )
+    
+    etat = forms.ChoiceField(
+        label="État",
+        choices=Materiel.ETAT_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    # Champs spécifiques aux véhicules
+    type_vehicule = forms.ChoiceField(
+        label="Type véhicule",
+        choices=Materiel.TYPE_VEHICULE_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    type_carburant = forms.ChoiceField(
+        label="Type de carburant",
+        choices=Materiel.TYPE_CARBURANT_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    kilometrage = forms.DecimalField(
+        label="Kilométrage",
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '0.01',
+            'placeholder': '0.00'
+        })
+    )
+    
+    # Étape 3: Informations visite
+    date_visite = forms.DateField(
+        label="Date de visite",
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    type_visite = forms.ChoiceField(
+        label="Type de visite",
+        choices=Visite.TYPE_VISITE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    kilometrage_visite = forms.DecimalField(
+        label="Kilométrage actuel",
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '0.01',
+            'placeholder': '0.00'
+        })
+    )
+    
+    responsable = forms.CharField(
+        label="Responsable / Mécanicien",
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nom du responsable'
+        })
+    )
+    
+    observations = forms.CharField(
+        label="Observations / Description",
+        required=False,
+        widget=forms.Textarea(attrs={
+            'rows': 4,
+            'class': 'form-control',
+            'placeholder': 'Description détaillée de la visite...'
+        })
+    )
+    
+    cout = forms.DecimalField(
+        label="Coût",
+        max_digits=10,
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'step': '0.01',
+            'placeholder': '0.00'
+        })
+    )
+    
+    prochaine_visite = forms.DateField(
+        label="Prochaine visite prévue",
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Le matricule est toujours obligatoire
+        self.fields['matricule'].required = True
+        
+        # Champs obligatoires pour la visite
+        self.fields['date_visite'].required = True
+        self.fields['type_visite'].required = True
+        
+        # Validation des valeurs numériques
+        self.fields['kilometrage'].widget.attrs.update({'min': '0'})
+        self.fields['kilometrage_visite'].widget.attrs.update({'min': '0'})
+        self.fields['cout'].widget.attrs.update({'min': '0'})
+    
+    def clean_matricule(self):
+        matricule = self.cleaned_data.get('matricule')
+        if matricule:
+            return matricule.strip().upper()
+        return matricule
+    
+    def clean_kilometrage(self):
+        kilometrage = self.cleaned_data.get('kilometrage')
+        if kilometrage is not None and kilometrage < 0:
+            raise ValidationError("Le kilométrage ne peut pas être négatif.")
+        return kilometrage
+    
+    def clean_kilometrage_visite(self):
+        kilometrage = self.cleaned_data.get('kilometrage_visite')
+        if kilometrage is not None and kilometrage < 0:
+            raise ValidationError("Le kilométrage ne peut pas être négatif.")
+        return kilometrage
+    
+    def clean_cout(self):
+        cout = self.cleaned_data.get('cout')
+        if cout is not None and cout < 0:
+            raise ValidationError("Le coût ne peut pas être négatif.")
+        return cout
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        matricule = cleaned_data.get('matricule')
+        
+        if not matricule:
+            raise ValidationError("Le matricule est obligatoire.")
+        
+        return cleaned_data
