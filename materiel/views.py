@@ -8,7 +8,7 @@ from django.db.models import Q, Count, Case, When, Value, IntegerField
 from django.utils import timezone
 from datetime import timedelta
 from .models import Materiel, Visite, ControleVisite
-from .forms import MaterielForm
+from .forms import MaterielForm, VisiteForm, ControleVisiteForm
 
 
 class StaffRequiredMixin(UserPassesTestMixin):
@@ -93,6 +93,7 @@ class MaterielDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['is_staff'] = self.request.user.is_staff
+        context['visites'] = self.object.visites.all().order_by('-date_visite')
         return context
 
 
@@ -215,3 +216,49 @@ class SuiviVisitesView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Materiel.objects.filter(type_materiel='vehicule')
+
+
+class VisiteCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = Visite
+    form_class = VisiteForm
+    template_name = 'materiel/visite_form.html'
+    success_url = reverse_lazy('suivi_visites')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "Ajouter une visite"
+        context['is_staff'] = self.request.user.is_staff
+        
+        # Pré-sélectionner le véhicule si passé en paramètre
+        materiel_id = self.request.GET.get('materiel')
+        if materiel_id:
+            try:
+                materiel = Materiel.objects.get(id=materiel_id, type_materiel='vehicule')
+                context['selected_materiel'] = materiel
+            except Materiel.DoesNotExist:
+                pass
+        
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        materiel_id = self.request.GET.get('materiel')
+        if materiel_id:
+            initial['materiel'] = materiel_id
+        return initial
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Visite ajoutée avec succès!')
+        return super().form_valid(form)
+
+
+class VisiteDetailView(LoginRequiredMixin, DetailView):
+    model = Visite
+    template_name = 'materiel/visite_detail.html'
+    context_object_name = 'visite'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_staff'] = self.request.user.is_staff
+        context['controles'] = self.object.controles.all()
+        return context

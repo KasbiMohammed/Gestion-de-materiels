@@ -9,4 +9,6 @@ urlpatterns = [
     path('materiel/<int:pk>/modifier/', views.MaterielUpdateView.as_view(), name='materiel_update'),
     path('materiel/<int:pk>/supprimer/', views.MaterielDeleteView.as_view(), name='materiel_delete'),
     path('suivi-visites/', views.SuiviVisitesView.as_view(), name='suivi_visites'),
+    path('visite/ajouter/', views.VisiteCreateView.as_view(), name='visite_create'),
+    path('visite/<int:pk>/', views.VisiteDetailView.as_view(), name='visite_detail'),
 ]

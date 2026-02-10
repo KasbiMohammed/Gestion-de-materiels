@@ -1,5 +1,5 @@
 from django import forms
-from .models import Materiel
+from .models import Materiel, Visite, ControleVisite
 
 
 class MaterielForm(forms.ModelForm):
@@ -124,3 +124,78 @@ class MaterielForm(forms.ModelForm):
         if numero_vehicule:
             numero_vehicule = numero_vehicule.upper().strip()
         return numero_vehicule
+
+
+class VisiteForm(forms.ModelForm):
+    class Meta:
+        model = Visite
+        fields = [
+            'materiel', 'date_visite', 'type_visite', 'kilometrage', 
+            'responsable', 'observations', 'cout', 'prochaine_visite'
+        ]
+        widgets = {
+            'materiel': forms.Select(attrs={'class': 'form-control', 'id': 'materiel-select'}),
+            'date_visite': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'type_visite': forms.Select(attrs={'class': 'form-control'}),
+            'kilometrage': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'responsable': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom du responsable ou mécanicien'}),
+            'observations': forms.Textarea(attrs={'rows': 4, 'class': 'form-control', 'placeholder': 'Description détaillée de la visite...'}),
+            'cout': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'placeholder': '0.00'}),
+            'prochaine_visite': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Filtrer pour n'afficher que les véhicules
+        self.fields['materiel'].queryset = Materiel.objects.filter(type_materiel='vehicule')
+        self.fields['materiel'].label = "Véhicule"
+        
+        # Champs obligatoires
+        self.fields['materiel'].required = True
+        self.fields['date_visite'].required = True
+        self.fields['type_visite'].required = True
+        
+        # Champs optionnels
+        self.fields['kilometrage'].required = False
+        self.fields['responsable'].required = False
+        self.fields['observations'].required = False
+        self.fields['cout'].required = False
+        self.fields['prochaine_visite'].required = False
+        
+        # Validation
+        self.fields['kilometrage'].widget.attrs.update({'min': '0'})
+        self.fields['cout'].widget.attrs.update({'min': '0'})
+    
+    def clean_kilometrage(self):
+        kilometrage = self.cleaned_data.get('kilometrage')
+        if kilometrage is not None and kilometrage < 0:
+            raise forms.ValidationError("Le kilométrage ne peut pas être négatif.")
+        return kilometrage
+    
+    def clean_cout(self):
+        cout = self.cleaned_data.get('cout')
+        if cout is not None and cout < 0:
+            raise forms.ValidationError("Le coût ne peut pas être négatif.")
+        return cout
+
+
+class ControleVisiteForm(forms.ModelForm):
+    class Meta:
+        model = ControleVisite
+        fields = [
+            'type_controle', 'effectue', 'details', 'pieces_changees'
+        ]
+        widgets = {
+            'type_controle': forms.Select(attrs={'class': 'form-control'}),
+            'effectue': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'details': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Détails du contrôle...'}),
+            'pieces_changees': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Pièces changées...'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['type_controle'].label = "Type de contrôle"
+        self.fields['effectue'].label = "Contrôle effectué"
+        self.fields['details'].label = "Détails du contrôle"
+        self.fields['pieces_changees'].label = "Pièces changées"
