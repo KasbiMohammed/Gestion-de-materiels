@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -30,6 +31,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'materiel_list' %}">
                             <i class="fas fa-list me-1"></i>Liste du matériel
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'suivi_visites' %}">
+                            <i class="fas fa-car-side me-1"></i>Suivi des visites
                         </a>
                     </li>
                     {% if user.is_staff %}
@@ -59,9 +65,14 @@
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
-                            </a></li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left; padding: 0.25rem 1rem;">
+                                        <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
+                                    </button>
+                                </form>
+                            </li>
                         </ul>
                     </li>
                 </ul>

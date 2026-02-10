@@ -4,8 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.db.models import Q
-from .models import Materiel
+from django.db.models import Q, Count, Case, When, Value, IntegerField
+from django.utils import timezone
+from datetime import timedelta
+from .models import Materiel, Visite, ControleVisite
 from .forms import MaterielForm
 
 
@@ -124,3 +126,92 @@ class MaterielDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, 'Matériel supprimé avec succès!')
         return super().delete(request, *args, **kwargs)
+
+
+class SuiviVisitesView(LoginRequiredMixin, ListView):
+    model = Materiel
+    template_name = 'materiel/suivi_visites.html'
+    context_object_name = 'vehicules'
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Filtres
+        vehicule_filter = self.request.GET.get('vehicule')
+        date_filter = self.request.GET.get('date')
+        type_visite_filter = self.request.GET.get('type_visite')
+        sort_order = self.request.GET.get('sort', 'date_desc')
+        
+        # Récupérer tous les véhicules
+        vehicules = Materiel.objects.filter(type_materiel='vehicule')
+        
+        # Appliquer le filtre véhicule si spécifié
+        if vehicule_filter:
+            vehicules = vehicules.filter(id=vehicule_filter)
+        
+        # Récupérer toutes les visites avec filtres
+        visites_queryset = Visite.objects.all()
+        
+        if vehicule_filter:
+            visites_queryset = visites_queryset.filter(materiel_id=vehicule_filter)
+        
+        if date_filter:
+            visites_queryset = visites_queryset.filter(date_visite=date_filter)
+        
+        if type_visite_filter:
+            visites_queryset = visites_queryset.filter(type_visite=type_visite_filter)
+        
+        # Trier les visites
+        if sort_order == 'date_asc':
+            visites_queryset = visites_queryset.order_by('date_visite')
+        else:
+            visites_queryset = visites_queryset.order_by('-date_visite')
+        
+        # Organiser les visites par véhicule - utilisation des relations Django
+        # Les visites seront accessibles directement via vehicule.visites.all dans le template
+        
+        # Calculer les statistiques
+        total_visites = visites_queryset.count()
+        visites_ce_mois = visites_queryset.filter(
+            date_visite__month=timezone.now().month,
+            date_visite__year=timezone.now().year
+        ).count()
+        
+        # Visites planifiées à venir
+        visites_avenir = Visite.objects.filter(
+            date_visite__gt=timezone.now().date()
+        ).order_by('date_visite')[:5]
+        
+        # Véhicules avec visites bientôt dues
+        alertes_visites = []
+        aujourdhui = timezone.now().date()
+        for vehicule in Materiel.objects.filter(type_materiel='vehicule'):
+            derniere_visite = vehicule.visites.first()
+            if derniere_visite and derniere_visite.prochaine_visite:
+                jours_restants = (derniere_visite.prochaine_visite - aujourdhui).days
+                if jours_restants <= 30 and jours_restants >= 0:
+                    alertes_visites.append({
+                        'vehicule': vehicule,
+                        'jours_restants': jours_restants,
+                        'prochaine_visite': derniere_visite.prochaine_visite
+                    })
+        
+        context.update({
+            'vehicules_list': vehicules,
+            'total_visites': total_visites,
+            'visites_ce_mois': visites_ce_mois,
+            'visites_avenir': visites_avenir,
+            'alertes_visites': alertes_visites,
+            'type_visite_choices': Visite.TYPE_VISITE_CHOICES,
+            'vehicule_filter': vehicule_filter,
+            'date_filter': date_filter,
+            'type_visite_filter': type_visite_filter,
+            'sort_order': sort_order,
+            'is_staff': self.request.user.is_staff,
+        })
+        
+        return context
+
+    def get_queryset(self):
+        return Materiel.objects.filter(type_materiel='vehicule')

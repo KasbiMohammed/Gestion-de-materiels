@@ -1,0 +1,17 @@
+{% load static %}
+<span class="badge 
+{% if type == 'entretien' %}bg-primary
+{% elif type == 'controle_technique' %}bg-warning
+{% elif type == 'inspection' %}bg-info
+{% elif type == 'reparation' %}bg-danger
+{% elif type == 'prevention' %}bg-success
+{% else %}bg-secondary
+{% endif %}">
+{% if type == 'entretien' %}<i class="fas fa-wrench me-1"></i>Entretien
+{% elif type == 'controle_technique' %}<i class="fas fa-clipboard-check me-1"></i>Contrôle Technique
+{% elif type == 'inspection' %}<i class="fas fa-search me-1"></i>Inspection
+{% elif type == 'reparation' %}<i class="fas fa-tools me-1"></i>Réparation
+{% elif type == 'prevention' %}<i class="fas fa-shield-alt me-1"></i>Visite Préventive
+{% else %}<i class="fas fa-tag me-1"></i>Autre
+{% endif %}
+</span>

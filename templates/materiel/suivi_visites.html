@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tableau de Bord - Suivi des Visites{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/suivi_visites.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="main-container">
+    <div class="luxury-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-0">
+                <i class="fas fa-car-side luxury-icon me-3"></i>
+                Suivi des Visites et Contrôles
+            </h1>
+            <div class="shimmer-effect"></div>
+        </div>
+    </div>
+
+<!-- Statistiques -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="luxury-card primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ total_visites }}</h4>
+                        <p class="card-text">Total des visites</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clipboard-check fa-2x luxury-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="luxury-card success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ visites_ce_mois }}</h4>
+                        <p class="card-text">Visites ce mois</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-check fa-2x luxury-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="luxury-card info">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ vehicules_list|length }}</h4>
+                        <p class="card-text">Véhicules suivis</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-car fa-2x luxury-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="luxury-card warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="card-title">{{ alertes_visites|length }}</h4>
+                        <p class="card-text">Visites imminentes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-triangle fa-2x luxury-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alertes visites imminentes -->
+{% if alertes_visites %}
+<div class="alert alert-luxury alert-dismissible fade show" role="alert">
+    <h5><i class="fas fa-exclamation-triangle luxury-icon me-2"></i>Visites imminentes</h5>
+    <div class="row">
+        {% for alerte in alertes_visites %}
+        <div class="col-md-6 mb-2">
+            <strong>{{ alerte.vehicule.matricule }} - {{ alerte.vehicule.marque }}</strong>: 
+            Visite dans {{ alerte.jours_restants }} jours ({{ alerte.prochaine_visite }})
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<!-- Filtres -->
+<div class="luxury-filters mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-filter luxury-icon me-2"></i>Filtres et Tri</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="vehicule" class="form-label">Véhicule</label>
+                <select name="vehicule" id="vehicule" class="form-select">
+                    <option value="">Tous les véhicules</option>
+                    {% for vehicule in vehicules_list %}
+                    <option value="{{ vehicule.id }}" {% if vehicule_filter == vehicule.id|stringformat:"s" %}selected{% endif %}>
+                        {{ vehicule.matricule }} - {{ vehicule.marque }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" name="date" id="date" class="form-control" value="{{ date_filter }}">
+            </div>
+            <div class="col-md-3">
+                <label for="type_visite" class="form-label">Type de visite</label>
+                <select name="type_visite" id="type_visite" class="form-select">
+                    <option value="">Tous les types</option>
+                    {% for type, label in type_visite_choices %}
+                    <option value="{{ type }}" {% if type_visite_filter == type %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="sort" class="form-label">Tri</label>
+                <select name="sort" id="sort" class="form-select">
+                    <option value="date_desc" {% if sort_order == 'date_desc' %}selected{% endif %}>Plus récent d'abord</option>
+                    <option value="date_asc" {% if sort_order == 'date_asc' %}selected{% endif %}>Plus ancien d'abord</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-luxury">
+                    <i class="fas fa-search me-1"></i>Appliquer les filtres
+                </button>
+                <a href="{% url 'suivi_visites' %}" class="btn btn-secondary">
+                    <i class="fas fa-times me-1"></i>Réinitialiser
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Visites à venir -->
+{% if visites_avenir %}
+<div class="luxury-card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5><i class="fas fa-calendar-alt luxury-icon me-2"></i>Visites Planifiées à Venir</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-luxury">
+                <thead>
+                    <tr>
+                        <th>Véhicule</th>
+                        <th>Date</th>
+                        <th>Type de visite</th>
+                        <th>Responsable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visite in visites_avenir %}
+                    <tr>
+                        <td>
+                            <strong>{{ visite.materiel.matricule }}</strong><br>
+                            <small class="text-muted">{{ visite.materiel.marque }} {{ visite.materiel.type_vehicule }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ visite.date_visite }}</span>
+                        </td>
+                        <td>
+                            {% include 'materiel/badges/type_visite_badge.html' with type=visite.type_visite %}
+                        </td>
+                        <td>{{ visite.responsable|default:"Non spécifié" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Historique des visites par véhicule -->
+<div class="luxury-card">
+    <div class="card-header">
+        <h5><i class="fas fa-history luxury-icon me-2"></i>Historique des Visites</h5>
+    </div>
+    <div class="card-body">
+        {% for vehicule in vehicules %}
+        {% with visites=vehicule.visites.all %}
+        {% if visites %}
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0">
+                    <i class="fas fa-car luxury-icon me-2"></i>
+                    <strong>{{ vehicule.matricule }}</strong> - {{ vehicule.marque }}
+                    <small class="text-muted">({{ vehicule.type_vehicule|default:"Type non spécifié" }})</small>
+                </h6>
+                <span class="badge badge-luxury bg-secondary">{{ visites|length }} visite(s)</span>
+            </div>
+            
+            <div class="accordion" id="accordion{{ vehicule.id }}">
+                {% for visite in visites %}
+                <div class="accordion-item mb-2">
+                    <h2 class="accordion-header" id="heading{{ vehicule.id }}{{ forloop.counter }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapse{{ vehicule.id }}{{ forloop.counter }}">
+                            <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                <div>
+                                    {% include 'materiel/badges/type_visite_badge.html' with type=visite.type_visite %}
+                                    <span class="ms-2">{{ visite.date_visite }}</span>
+                                    {% if visite.kilometrage %}
+                                    <span class="badge bg-light text-dark ms-2">{{ visite.kilometrage }} km</span>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {% if visite.cout %}
+                                    <span class="badge bg-success">{{ visite.cout }} €</span>
+                                    {% endif %}
+                                    {% if visite.responsable %}
+                                    <small class="text-muted ms-2">{{ visite.responsable }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="collapse{{ vehicule.id }}{{ forloop.counter }}" 
+                         class="accordion-collapse collapse" 
+                         data-bs-parent="#accordion{{ vehicule.id }}">
+                        <div class="accordion-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-info-circle me-2"></i>Informations générales</h6>
+                                    <p><strong>Date:</strong> {{ visite.date_visite }}</p>
+                                    <p><strong>Type:</strong> {{ visite.get_type_visite_display }}</p>
+                                    {% if visite.kilometrage %}
+                                    <p><strong>Kilométrage:</strong> {{ visite.kilometrage }} km</p>
+                                    {% endif %}
+                                    {% if visite.responsable %}
+                                    <p><strong>Responsable:</strong> {{ visite.responsable }}</p>
+                                    {% endif %}
+                                    {% if visite.cout %}
+                                    <p><strong>Coût:</strong> {{ visite.cout }} €</p>
+                                    {% endif %}
+                                    {% if visite.prochaine_visite %}
+                                    <p><strong>Prochaine visite:</strong> {{ visite.prochaine_visite }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-tools me-2"></i>Contrôles effectués</h6>
+                                    {% if visite.controles.exists %}
+                                        {% for controle in visite.controles.all %}
+                                        <div class="mb-2">
+                                            <span class="badge {% if controle.effectue %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ controle.get_type_controle_display }}
+                                            </span>
+                                            {% if controle.details %}
+                                            <small class="text-muted d-block">{{ controle.details }}</small>
+                                            {% endif %}
+                                            {% if controle.pieces_changees %}
+                                            <small class="text-info d-block">Pièces: {{ controle.pieces_changees }}</small>
+                                            {% endif %}
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-muted">Aucun contrôle détaillé enregistré</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if visite.observations %}
+                            <div class="mt-3">
+                                <h6><i class="fas fa-sticky-note me-2"></i>Observations</h6>
+                                <p class="text-muted">{{ visite.observations }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-luxury mb-4">
+            <i class="fas fa-info-circle luxury-icon me-2"></i>
+            Aucune visite enregistrée pour <strong>{{ vehicule.matricule }}</strong>
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% endfor %}
+        
+        {% if not vehicules %}
+        <div class="alert alert-luxury">
+            <i class="fas fa-exclamation-triangle luxury-icon me-2"></i>
+            Aucun véhicule trouvé dans le système.
+        </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+
+<!-- Template pour les badges de type de visite -->
+<script>
+// Fonction pour obtenir la couleur du badge selon le type de visite
+function getVisiteBadgeColor(type) {
+    const colors = {
+        'entretien': 'primary',
+        'controle_technique': 'warning',
+        'inspection': 'info',
+        'reparation': 'danger',
+        'prevention': 'success',
+        'autre': 'secondary'
+    };
+    return colors[type] || 'secondary';
+}
+
+// Animation de chargement luxueux
+document.addEventListener('DOMContentLoaded', function() {
+    // Ajouter des animations subtiles aux cartes
+    const cards = document.querySelectorAll('.luxury-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Effet de brillance au survol des badges
+    const badges = document.querySelectorAll('.badge-luxury');
+    badges.forEach(badge => {
+        badge.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        badge.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

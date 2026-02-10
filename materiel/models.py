@@ -102,3 +102,64 @@ class Materiel(models.Model):
 
     def get_absolute_url(self):
         return f"/materiel/{self.id}/"
+
+
+class Visite(models.Model):
+    TYPE_VISITE_CHOICES = [
+        ('entretien', 'Entretien'),
+        ('controle_technique', 'Contrôle Technique'),
+        ('inspection', 'Inspection'),
+        ('reparation', 'Réparation'),
+        ('prevention', 'Visite Préventive'),
+        ('autre', 'Autre'),
+    ]
+    
+    TYPE_CONTROLE_CHOICES = [
+        ('huile_moteur', 'Huile moteur'),
+        ('filtres', 'Filtres'),
+        ('freins', 'Freins'),
+        ('pneus', 'Pneus'),
+        ('batterie', 'Batterie'),
+        ('systeme_electronique', 'Système électronique'),
+        ('climatisation', 'Climatisation'),
+        ('suspension', 'Suspension'),
+        ('echappement', 'Échappement'),
+        ('transmission', 'Transmission'),
+        ('eclairage', 'Éclairage'),
+        ('autre', 'Autre'),
+    ]
+    
+    materiel = models.ForeignKey(Materiel, on_delete=models.CASCADE, related_name='visites')
+    date_visite = models.DateField("Date de visite")
+    type_visite = models.CharField("Type de visite", max_length=20, choices=TYPE_VISITE_CHOICES)
+    kilometrage = models.DecimalField("Kilométrage", max_digits=10, decimal_places=2, null=True, blank=True)
+    responsable = models.CharField("Responsable/Mécanicien", max_length=100, null=True, blank=True)
+    observations = models.TextField("Observations", null=True, blank=True)
+    cout = models.DecimalField("Coût", max_digits=10, decimal_places=2, null=True, blank=True)
+    prochaine_visite = models.DateField("Prochaine visite prévue", null=True, blank=True)
+    
+    created_at = models.DateTimeField("Date de création", auto_now_add=True)
+    updated_at = models.DateTimeField("Date de mise à jour", auto_now=True)
+    
+    class Meta:
+        verbose_name = "Visite"
+        verbose_name_plural = "Visites"
+        ordering = ['-date_visite']
+    
+    def __str__(self):
+        return f"{self.materiel.matricule} - {self.get_type_visite_display()} ({self.date_visite})"
+
+
+class ControleVisite(models.Model):
+    visite = models.ForeignKey(Visite, on_delete=models.CASCADE, related_name='controles')
+    type_controle = models.CharField("Type de contrôle", max_length=30, choices=Visite.TYPE_CONTROLE_CHOICES)
+    effectue = models.BooleanField("Contrôle effectué", default=True)
+    details = models.TextField("Détails du contrôle", null=True, blank=True)
+    pieces_changees = models.TextField("Pièces changées", null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Contrôle de visite"
+        verbose_name_plural = "Contrôles de visite"
+    
+    def __str__(self):
+        return f"{self.visite} - {self.get_type_controle_display()}"
