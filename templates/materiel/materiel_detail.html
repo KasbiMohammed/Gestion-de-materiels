@@ -90,14 +90,16 @@
                     </div>
                 </div>
                 
-                {% if materiel.observation %}
                 <div class="mt-3">
-                    <label class="form-label text-muted">Observations</label>
+                    <label class="form-label text-muted">Observations générales</label>
                     <div class="alert alert-light">
-                        {{ materiel.observation|linebreaks }}
+                        {% if materiel.observation %}
+                            {{ materiel.get_observation_display }}{% if materiel.observation != 'marche' %} - {{ materiel.observation }}{% endif %}
+                        {% else %}
+                            <span class="text-muted">Non spécifié</span>
+                        {% endif %}
                     </div>
                 </div>
-                {% endif %}
             </div>
         </div>
 
@@ -129,6 +131,120 @@
                                 <span class="text-muted">Non affecté</span>
                             {% endif %}
                         </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations véhicule (uniquement pour les véhicules) -->
+        {% if materiel.type_materiel == 'vehicule' %}
+        <div class="card mt-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-car me-2"></i>Informations véhicule
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Type de véhicule</label>
+                        <p class="form-control-plaintext">
+                            {% if materiel.type_vehicule %}
+                                <span class="badge bg-info">{{ materiel.get_type_vehicule_display }}</span>
+                            {% else %}
+                                <span class="text-muted">Non spécifié</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Numéro de châssis</label>
+                        <p class="form-control-plaintext">{{ materiel.numero_vehicule|default:"Non spécifié" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Date de mise en circulation</label>
+                        <p class="form-control-plaintext">
+                            <i class="fas fa-car me-1"></i>{{ materiel.date_mise_circulation|date:"d/m/Y"|default:"-" }}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Type de carburant</label>
+                        <p class="form-control-plaintext">
+                            {% if materiel.type_carburant %}
+                                <span class="badge bg-success">{{ materiel.get_type_carburant_display }}</span>
+                            {% else %}
+                                <span class="text-muted">Non spécifié</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Statut du véhicule</label>
+                        <p class="form-control-plaintext">
+                            {% if materiel.statut_vehicule %}
+                                <span class="badge bg-secondary">{{ materiel.get_statut_vehicule_display }}</span>
+                            {% else %}
+                                <span class="text-muted">Non spécifié</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Kilométrage</label>
+                        <p class="form-control-plaintext">
+                            <i class="fas fa-tachometer-alt me-1"></i>
+                            {% if materiel.kilometrage %}{{ materiel.kilometrage }} km{% else %}-{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Maintenance et Réparation -->
+        <div class="card mt-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-wrench me-2"></i>Maintenance et Réparation
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Défaut/Panne</label>
+                        <p class="form-control-plaintext">
+                            {% if materiel.defaut_panne %}
+                                <span class="badge bg-warning text-dark">{{ materiel.get_defaut_panne_display }}</span>
+                            {% else %}
+                                <span class="text-muted">Aucun défaut signalé</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Référence pièce</label>
+                        <p class="form-control-plaintext">{{ materiel.reference_piece|default:"Non spécifié" }}</p>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label text-muted">Réparation</label>
+                        <div class="alert alert-light">
+                            {{ materiel.reparation|default:"Aucune réparation enregistrée"|linebreaks }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Prix</label>
+                        <p class="form-control-plaintext">
+                            <i class="fas fa-euro-sign me-1"></i>
+                            {% if materiel.prix %}{{ materiel.prix }} €{% else %}-{% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Date de prochaine visite</label>
+                        <p class="form-control-plaintext">
+                            <i class="fas fa-calendar-check me-1"></i>{{ materiel.date_prochaine_visite|date:"d/m/Y"|default:"-" }}
+                        </p>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label class="form-label text-muted">Divers</label>
+                        <div class="alert alert-light">
+                            {{ materiel.divers|default:"Aucune information diverses"|linebreaks }}
+                        </div>
                     </div>
                 </div>
             </div>

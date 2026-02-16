@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Tableau de Bord - Suivi des Visites{% endblock %}
+{% block title %}Tableau de Bord - Suivi des Controles{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/suivi_visites.css' %}">
@@ -42,7 +42,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">{{ total_visites }}</h4>
-                        <p class="card-text">Total des visites</p>
+                        <p class="card-text">Total des Controles</p>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-clipboard-check fa-2x luxury-icon"></i>
@@ -57,7 +57,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">{{ visites_ce_mois }}</h4>
-                        <p class="card-text">Visites ce mois</p>
+                        <p class="card-text">Controles ce mois</p>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-calendar-check fa-2x luxury-icon"></i>
@@ -72,7 +72,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">{{ alertes_visites|length }}</h4>
-                        <p class="card-text">Visites bientôt dues</p>
+                        <p class="card-text">Controles bientôt dues</p>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-exclamation-triangle fa-2x luxury-icon"></i>
@@ -91,7 +91,7 @@
         <div class="luxury-card">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">
-                    <i class="fas fa-wrench me-2"></i>Ajouter une visite
+                    <i class="fas fa-wrench me-2"></i>Ajouter une Controle
                 </h5>
             </div>
             <div class="card-body">
@@ -99,9 +99,9 @@
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <label for="materiel_id" class="form-label">Matériel *</label>
+                            <label for="materiel_id" class="form-label">Véhicules *</label>
                             <select name="materiel_id" id="materiel_id" class="form-select" required>
-                                <option value="">Sélectionner un matériel</option>
+                                <option value="">Sélectionner un Controles</option>
                                 {% for materiel in vehicules %}
                                 <option value="{{ materiel.id }}">{{ materiel.matricule }} - {{ materiel.marque }}</option>
                                 {% endfor %}
@@ -114,7 +114,7 @@
                         </div>
                         
                         <div class="col-md-3">
-                            <label for="type_visite" class="form-label">Type de visite *</label>
+                            <label for="type_visite" class="form-label">Type de Controle *</label>
                             <select name="type_visite" id="type_visite" class="form-select" required>
                                 <option value="">Sélectionner un type</option>
                                 {% for type, label in type_visite_choices %}
@@ -154,7 +154,7 @@
                         
                         <div class="col-12 d-flex justify-content-end mt-3">
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>Ajouter la visite
+                                <i class="fas fa-save me-2"></i>Ajouter 
                             </button>
                         </div>
                     </div>
@@ -208,7 +208,7 @@
                 <input type="date" name="date" id="date" class="form-control" value="{{ date_filter }}">
             </div>
             <div class="col-md-3">
-                <label for="type_visite" class="form-label">Type de visite</label>
+                <label for="type_visite" class="form-label">Type de Controle</label>
                 <select name="type_visite" id="type_visite" class="form-select">
                     <option value="">Tous les types</option>
                     {% for type, label in type_visite_choices %}
@@ -250,24 +250,53 @@
                     <tr>
                         <th>Véhicule</th>
                         <th>Date</th>
-                        <th>Type de visite</th>
+                        <th>Type de Controle</th>
                         <th>Responsable</th>
+                        <th>Kilométrage</th>
+                        <th>Coût</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for visite in visites_avenir %}
                     <tr>
                         <td>
-                            <strong>{{ visite.materiel.matricule }}</strong><br>
-                            <small class="text-muted">{{ visite.materiel.marque }} {{ visite.materiel.type_vehicule }}</small>
+                            <div>
+                                <strong>{{ visite.materiel.matricule }}</strong><br>
+                                <small class="text-muted">{{ visite.materiel.marque }} 
+                                {% if visite.materiel.type_vehicule %} - {{ visite.materiel.get_type_vehicule_display }}{% endif %}
+                                </small>
+                                {% if visite.materiel.service_affecte %}
+                                <br><small class="text-info"><i class="fas fa-building me-1"></i>{{ visite.materiel.service_affecte }}</small>
+                                {% endif %}
+                            </div>
                         </td>
                         <td>
                             <span class="badge bg-info">{{ visite.date_visite }}</span>
+                            {% if visite.prochaine_visite %}
+                            <br><small class="text-muted">Prochaine: {{ visite.prochaine_visite }}</small>
+                            {% endif %}
                         </td>
                         <td>
                             {% include 'materiel/badges/type_visite_badge.html' with type=visite.type_visite %}
                         </td>
-                        <td>{{ visite.responsable|default:"Non spécifié" }}</td>
+                        <td>
+                            {{ visite.responsable|default:"Non spécifié" }}
+                        </td>
+                        <td>
+                            {% if visite.kilometrage %}
+                            <span class="badge bg-light text-dark">{{ visite.kilometrage }} km</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if visite.cout %}
+                            <span class="badge bg-success">{{ visite.cout }} €</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if is_staff %}
                             <div class="btn-group btn-group-sm" role="group">
@@ -297,7 +326,7 @@
 <!-- Historique des visites par véhicule -->
 <div class="luxury-card">
     <div class="card-header">
-        <h5><i class="fas fa-history luxury-icon me-2"></i>Historique des Visites</h5>
+        <h5><i class="fas fa-history luxury-icon me-2"></i>Historique des Véhicules</h5>
     </div>
     <div class="card-body">
         {% for vehicule in vehicules %}
@@ -369,7 +398,9 @@
                                 <div class="col-md-6">
                                     <h6><i class="fas fa-info-circle me-2"></i>Informations générales</h6>
                                     <p><strong>Date:</strong> {{ visite.date_visite }}</p>
-                                    <p><strong>Type:</strong> {{ visite.get_type_visite_display }}</p>
+                                    <p><strong>Type:</strong> 
+                                        <span class="badge bg-primary">{{ visite.get_type_visite_display }}</span>
+                                    </p>
                                     {% if visite.kilometrage %}
                                     <p><strong>Kilométrage:</strong> {{ visite.kilometrage }} km</p>
                                     {% endif %}
@@ -377,39 +408,80 @@
                                     <p><strong>Responsable:</strong> {{ visite.responsable }}</p>
                                     {% endif %}
                                     {% if visite.cout %}
-                                    <p><strong>Coût:</strong> {{ visite.cout }} €</p>
+                                    <p><strong>Coût:</strong> <span class="badge bg-success">{{ visite.cout }} €</span></p>
                                     {% endif %}
                                     {% if visite.prochaine_visite %}
                                     <p><strong>Prochaine visite:</strong> {{ visite.prochaine_visite }}</p>
                                     {% endif %}
+                                    <p><strong>Date de création:</strong> {{ visite.created_at|date:"d/m/Y H:i" }}</p>
+                                    <p><strong>Dernière mise à jour:</strong> {{ visite.updated_at|date:"d/m/Y H:i" }}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <h6><i class="fas fa-tools me-2"></i>Contrôles effectués</h6>
+                                    <h6><i class="fas fa-tools me-2"></i>Contrôles détaillés</h6>
                                     {% if visite.controles.exists %}
                                         {% for controle in visite.controles.all %}
-                                        <div class="mb-2">
-                                            <span class="badge {% if controle.effectue %}bg-success{% else %}bg-danger{% endif %}">
-                                                {{ controle.get_type_controle_display }}
-                                            </span>
+                                        <div class="mb-3 p-3 border rounded">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="badge {% if controle.effectue %}bg-success{% else %}bg-danger{% endif %}">
+                                                    {{ controle.get_type_controle_display }}
+                                                </span>
+                                                <span class="badge {% if controle.effectue %}bg-light text-success{% else %}bg-light text-danger{% endif %}">
+                                                    {% if controle.effectue %}Effectué{% else %}Non effectué{% endif %}
+                                                </span>
+                                            </div>
                                             {% if controle.details %}
-                                            <small class="text-muted d-block">{{ controle.details }}</small>
+                                            <p class="mb-1"><strong>Détails:</strong> {{ controle.details }}</p>
                                             {% endif %}
                                             {% if controle.pieces_changees %}
-                                            <small class="text-info d-block">Pièces: {{ controle.pieces_changees }}</small>
+                                            <p class="mb-1"><strong>Pièces changées:</strong> {{ controle.pieces_changees }}</p>
                                             {% endif %}
                                         </div>
                                         {% endfor %}
                                     {% else %}
-                                        <p class="text-muted">Aucun contrôle détaillé enregistré</p>
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Aucun contrôle détaillé enregistré pour cette visite
+                                        </div>
                                     {% endif %}
                                 </div>
                             </div>
                             {% if visite.observations %}
                             <div class="mt-3">
-                                <h6><i class="fas fa-sticky-note me-2"></i>Observations</h6>
-                                <p class="text-muted">{{ visite.observations }}</p>
+                                <h6><i class="fas fa-sticky-note me-2"></i>Observations générales</h6>
+                                <div class="alert alert-light">
+                                    {{ visite.observations|linebreaks }}
+                                </div>
                             </div>
                             {% endif %}
+                            
+                            <!-- Informations sur le matériel lié -->
+                            <div class="mt-3">
+                                <h6><i class="fas fa-car me-2"></i>Informations du véhicule</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Matricule:</strong> {{ visite.materiel.matricule }}</p>
+                                        <p><strong>Marque:</strong> {{ visite.materiel.marque }}</p>
+                                        <p><strong>Type:</strong> {{ visite.materiel.get_type_materiel_display }}</p>
+                                        {% if visite.materiel.type_vehicule %}
+                                        <p><strong>Type véhicule:</strong> {{ visite.materiel.get_type_vehicule_display }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {% if visite.materiel.numero_vehicule %}
+                                        <p><strong>Numéro châssis:</strong> {{ visite.materiel.numero_vehicule }}</p>
+                                        {% endif %}
+                                        {% if visite.materiel.type_carburant %}
+                                        <p><strong>Carburant:</strong> {{ visite.materiel.get_type_carburant_display }}</p>
+                                        {% endif %}
+                                        {% if visite.materiel.statut_vehicule %}
+                                        <p><strong>Statut véhicule:</strong> {{ visite.materiel.get_statut_vehicule_display }}</p>
+                                        {% endif %}
+                                        {% if visite.materiel.service_affecte %}
+                                        <p><strong>Service affecté:</strong> {{ visite.materiel.service_affecte }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

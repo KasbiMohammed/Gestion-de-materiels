@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Tableau de bord - Gestion de Matériel{% endblock %}
+{% block title %}Tableau de bord - Gestion de Véhicules{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -10,12 +10,12 @@
     <div class="btn-group">
         {% if is_staff %}
         <a href="{% url 'materiel_create' %}" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Ajouter du matériel
+            <i class="fas fa-plus me-2"></i>Ajouter du Véhicules
         </a>
        
         {% endif %}
         <a href="{% url 'suivi_visites' %}" class="btn btn-info">
-            <i class="fas fa-history me-2"></i>Suivi des visites
+            <i class="fas fa-history me-2"></i>Suivi des Controles
         </a>
     </div>
 </div>
@@ -28,7 +28,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h4 class="card-title">{{ total_materiels }}</h4>
-                        <p class="card-text">Total matériel</p>
+                        <p class="card-text">Total Véhicules</p>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-box fa-2x opacity-75"></i>
@@ -91,9 +91,9 @@
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-            <i class="fas fa-list me-2"></i>Matériel récent
+            <i class="fas fa-list me-2"></i>Véhicules récent
         </h5>
-        <a href="{% url 'materiel_list' %}" class="btn btn-sm btn-outline-primary">
+        <a href="{% url 'materiel_list' %}?all=true" class="btn btn-sm btn-outline-primary">
             Voir tout
         </a>
     </div>
@@ -213,7 +213,7 @@
 <div class="card mt-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-            <i class="fas fa-history me-2"></i>Visites récentes
+            <i class="fas fa-history me-2"></i>Controles récentes
         </h5>
         <a href="{% url 'suivi_visites' %}" class="btn btn-sm btn-outline-info">
             Voir tout l'historique

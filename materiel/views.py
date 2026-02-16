@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.urls import reverse_lazy
-from django.db.models import Count, Case, When, Value, IntegerField
+from django.db.models import Count, Case, When, Value, IntegerField, Q
 from django.utils import timezone
 from datetime import timedelta
 from .models import Materiel, Visite, ControleVisite
@@ -70,6 +70,7 @@ class MaterielListView(LoginRequiredMixin, ListView):
         search = self.request.GET.get('search')
         etat_filter = self.request.GET.get('etat')
         type_filter = self.request.GET.get('type_materiel')
+        show_all = self.request.GET.get('all')
         
         if search:
             queryset = queryset.filter(
@@ -87,6 +88,12 @@ class MaterielListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(type_materiel=type_filter)
         
         return queryset
+    
+    def get_paginate_by(self, queryset):
+        # Si le paramètre 'all' est présent, ne pas paginer
+        if self.request.GET.get('all'):
+            return None
+        return 20
 
 
 class MaterielDetailView(LoginRequiredMixin, DetailView):
@@ -448,6 +455,43 @@ class VisiteAjoutRapideView(LoginRequiredMixin, StaffRequiredMixin, TemplateView
         except Exception as e:
             messages.error(request, f'Erreur lors de l\'ajout de la visite: {str(e)}')
             return redirect('visite_ajout_rapide')
+
+
+class VisiteCreateView(LoginRequiredMixin, StaffRequiredMixin, CreateView):
+    model = Visite
+    form_class = VisiteForm
+    template_name = 'materiel/visite_form.html'
+    success_url = reverse_lazy('suivi_visites')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Ajouter une visite'
+        
+        # Pré-remplir le matériel si passé en paramètre
+        materiel_id = self.request.GET.get('materiel')
+        if materiel_id:
+            try:
+                materiel = Materiel.objects.get(id=materiel_id)
+                context['materiel_preselectionne'] = materiel
+                # Pré-remplir le formulaire avec le matériel
+                if 'form' not in context:
+                    context['form'] = self.get_form()
+                context['form'].initial['materiel'] = materiel
+            except Materiel.DoesNotExist:
+                pass
+        
+        context['is_staff'] = self.request.user.is_staff
+        return context
+    
+    def form_valid(self, form):
+        messages.success(self.request, f'Visite ajoutée avec succès pour {form.instance.materiel.matricule}!')
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        # Rediriger vers la page de suivi des visites ou vers le détail du matériel
+        if self.object.materiel:
+            return reverse_lazy('materiel_detail', kwargs={'pk': self.object.materiel.pk})
+        return reverse_lazy('suivi_visites')
 
 
 class VisiteDetailView(LoginRequiredMixin, DetailView):

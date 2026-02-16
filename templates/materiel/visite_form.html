@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if object %}Modifier{% else %}Ajouter{% endif %} une visite
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">
+        <i class="fas fa-{% if object %}edit{% else %}plus{% endif %} me-2"></i>
+        {% if object %}Modifier{% else %}Ajouter{% endif %} une visite
+    </h1>
+    <a href="{% if materiel_preselectionne %}{% url 'materiel_detail' materiel_preselectionne.pk %}{% else %}{% url 'suivi_visites' %}{% endif %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Retour
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-wrench me-2"></i>
+                    {% if object %}Modifier{% else %}Ajouter{% endif %} une visite
+                    {% if materiel_preselectionne %} - {{ materiel_preselectionne.matricule }}{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if materiel_preselectionne %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Matériel pré-sélectionné :</strong> {{ materiel_preselectionne.matricule }} ({{ materiel_preselectionne.marque }})
+                </div>
+                {% endif %}
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.materiel.id_for_label }}" class="form-label">
+                                Matériel <span class="text-danger">*</span>
+                            </label>
+                            {{ form.materiel }}
+                            {% if form.materiel.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.materiel.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Sélectionnez le véhicule concerné par cette visite</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.date_visite.id_for_label }}" class="form-label">
+                                Date de visite <span class="text-danger">*</span>
+                            </label>
+                            {{ form.date_visite }}
+                            {% if form.date_visite.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.date_visite.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.type_visite.id_for_label }}" class="form-label">
+                                Type de visite <span class="text-danger">*</span>
+                            </label>
+                            {{ form.type_visite }}
+                            {% if form.type_visite.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.type_visite.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.responsable.id_for_label }}" class="form-label">
+                                Responsable
+                            </label>
+                            {{ form.responsable }}
+                            {% if form.responsable.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.responsable.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.kilometrage.id_for_label }}" class="form-label">
+                                Kilométrage
+                            </label>
+                            {{ form.kilometrage }}
+                            {% if form.kilometrage.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.kilometrage.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Kilométrage actuel du véhicule</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.cout.id_for_label }}" class="form-label">
+                                Coût (€)
+                            </label>
+                            {{ form.cout }}
+                            {% if form.cout.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.cout.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Coût total de la visite</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.prochaine_visite.id_for_label }}" class="form-label">
+                                Prochaine visite
+                            </label>
+                            {{ form.prochaine_visite }}
+                            {% if form.prochaine_visite.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.prochaine_visite.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Date recommandée pour la prochaine visite</small>
+                        </div>
+                        
+                        <div class="col-12 mb-3">
+                            <label for="{{ form.observations.id_for_label }}" class="form-label">
+                                Observations
+                            </label>
+                            {{ form.observations }}
+                            {% if form.observations.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.observations.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Détails sur les travaux effectués, pièces changées, etc.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% if materiel_preselectionne %}{% url 'materiel_detail' materiel_preselectionne.pk %}{% else %}{% url 'suivi_visites' %}{% endif %}" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Mettre à jour{% else %}Ajouter{% endif %} la visite
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Aide et instructions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="fw-bold">Instructions générales</h6>
+                    <p class="text-muted small">
+                        Tous les champs marqués d'une astérisque (<span class="text-danger">*</span>) sont obligatoires.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Matériel</h6>
+                    <p class="text-muted small">
+                        Sélectionnez le véhicule concerné par cette visite. Seuls les véhicules apparaissent dans la liste.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Type de visite</h6>
+                    <p class="text-muted small">
+                        Choisissez le type approprié : entretien régulier, réparation, contrôle technique, etc.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Kilométrage</h6>
+                    <p class="text-muted small">
+                        Indiquez le kilométrage du véhicule au moment de la visite pour un meilleur suivi.
+                    </p>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Prochaine visite</h6>
+                    <p class="text-muted small">
+                        Définissez la date recommandée pour la prochaine visite afin de planifier l'entretien.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ajouter des classes Bootstrap aux champs de formulaire
+    const formFields = document.querySelectorAll('input, select, textarea');
+    formFields.forEach(function(field) {
+        if (field.type !== 'hidden' && field.type !== 'checkbox' && field.type !== 'radio') {
+            field.classList.add('form-control');
+        }
+    });
+    
+    // Ajouter des classes aux selects
+    const selects = document.querySelectorAll('select');
+    selects.forEach(function(select) {
+        select.classList.add('form-select');
+    });
+});
+</script>
+{% endblock %}

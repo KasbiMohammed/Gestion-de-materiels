@@ -1,17 +1,28 @@
 {% extends 'base.html' %}
 
-{% block title %}Liste du matériel - Gestion de Matériel{% endblock %}
+{% block title %}Liste du Véhicules - Gestion de Véhicules{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3">
-        <i class="fas fa-list me-2"></i>Liste du matériel
+        <i class="fas fa-list me-2"></i>Liste des Véhicules
     </h1>
-    {% if is_staff %}
-    <a href="{% url 'materiel_create' %}" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i>Ajouter du matériel
-    </a>
-    {% endif %}
+    <div>
+        {% if request.GET.all %}
+        <a href="{% url 'materiel_list' %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-list-ol me-2"></i>Affichage paginé
+        </a>
+        {% else %}
+        <a href="?all=true{% for key, value in request.GET.items %}{% if key != 'page' and key != 'all' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-list me-2"></i>Voir tout
+        </a>
+        {% endif %}
+        {% if is_staff %}
+        <a href="{% url 'materiel_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Ajouter des Véhicules
+        </a>
+        {% endif %}
+    </div>
 </div>
 
 <!-- Filtres et recherche -->
@@ -64,9 +75,16 @@
         <h5 class="mb-0">
             <i class="fas fa-boxes me-2"></i>
             {% if materiels|length %}
-                {{ materiels|length }} matériel{{ materiels|length|pluralize }}
+                {% if request.GET.all %}
+                    {{ materiels|length }} Véhicule{{ materiels|length|pluralize }} (tous)
+                {% else %}
+                    {{ materiels|length }} Véhicule{{ materiels|length|pluralize }} 
+                    {% if is_paginated %}
+                        (Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }})
+                    {% endif %}
+                {% endif %}
             {% else %}
-                Aucun matériel trouvé
+                Aucun Véhicule trouvé
             {% endif %}
         </h5>
     </div>
